@@ -1,6 +1,6 @@
 # What Works for Mom — shared care log
 
-A phone-friendly version of the paper door card. Static site for GitHub Pages; entries are saved to a Google Sheet through a small Apps Script, behind a family passcode. The Sheet is the only place entries are stored. Nothing personal goes in this repo.
+A phone-friendly version of the paper door card. Static site for GitHub Pages; entries are saved to a Google Sheet through a small Apps Script, behind a family passcode (stored in the script's settings, not in this repo). The Sheet is the only place entries are stored. Nothing personal goes in this repo.
 
 ```
 index.html, styles.css, app.js   the app
@@ -9,22 +9,21 @@ apps-script/Code.gs              the backend, pasted into the Google Sheet
 test/mock-server.js              local stand-in for the backend (no Google needed)
 ```
 
-## Part A — Google side (do this on a personal phone or laptop, not the work computer)
+## Part A — Google side (personal Google account, on a personal phone or laptop)
 
-1. Go to **sheets.new** while signed into your personal Google account. Name the sheet `What Works for Mom`.
-2. **Extensions → Apps Script.** Delete what's there and paste all of `apps-script/Code.gs`.
-3. On the line `const PASSCODE = 'CHANGE-ME';`, replace `CHANGE-ME` with the family code. Save (💾).
-4. In the function dropdown at the top, pick **setup** and click **Run**. Approve the permission prompt ("Advanced → Go to … (unsafe)" is expected for your own script). This creates the **Log** and **Tips** tabs.
-5. **Deploy → New deployment → ⚙ → Web app.**
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-   - Click **Deploy** and copy the **Web app URL** (ends in `/exec`).
-6. Send that URL to Michael's work computer any way that works (text or email it to yourself). The URL is not a secret: the passcode protects the data.
-7. In the **Tips** tab, fill in the "How to do it" column: which playlist and speaker, where the memory box is. The app shows this tab as "Hard moment? Try these first."
+Nothing in the code needs editing.
 
-On a phone, the Apps Script editor works best in Chrome with **Desktop site** turned on.
+1. Go to **sheets.new** signed into your personal Gmail. Name it `What Works for Mom`.
+2. **Extensions → Apps Script.** Delete what's there, paste all of `apps-script/Code.gs` (open it on GitHub → **Raw** → copy), and click **Save**.
+3. **Deploy → New deployment → ⚙ → Web app.** Execute as **Me**, Who has access **Anyone**. Click **Deploy**, then approve the permission prompt ("Advanced → Go to … (unsafe)" is expected for your own script).
+4. Copy the **Web app URL** (ends in `/exec`) and send it to the work computer.
 
-**Changing the code later:** edit `PASSCODE`, then **Deploy → Manage deployments → ✏ → Version: New version → Deploy**. The URL stays the same. Everyone re-enters the code once.
+The first time the app connects:
+
+- The **Log** and **Tips** tabs are created automatically.
+- **The first code anyone enters becomes the family code.** Enter it yourself right after deploying, before you share the link. Fill in the "How to do it" column of **Tips** (playlist and speaker, where the memory box is).
+
+**Changing the code later:** in Apps Script, open **Project Settings (⚙) → Script properties**, delete `PASSCODE`, and enter the new code in the app. Everyone else re-enters it once.
 
 ## Part B — connect and publish (work computer)
 
@@ -44,4 +43,4 @@ On a phone, the Apps Script editor works best in Chrome with **Desktop site** tu
 node test/mock-server.js        # then open http://127.0.0.1:8765, code: test
 ```
 
-The mock keeps entries in memory only and applies the same passcode and validation rules as `Code.gs`.
+The mock keeps entries in memory only and applies the same validation rules as `Code.gs`. `MOCK_FIRST_RUN=1 node test/mock-server.js` mimics a fresh deploy, where the first code entered is kept.

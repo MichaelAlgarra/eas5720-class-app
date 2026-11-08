@@ -213,7 +213,7 @@
         if (store.get(KEY.who, "")) setWho(store.get(KEY.who));
       } catch (e) {
         err.textContent = e.code === "bad_code" ? "That code didn't work."
-          : e.code === "passcode_not_set" ? "The family sheet still needs its code set up."
+          : e.code === "code_too_short" ? "Use at least 4 characters for the family code."
           : e.code === "not_configured" ? "This app isn't connected to the family sheet yet."
           : "Couldn't reach the family sheet. Check your connection.";
         err.hidden = false;

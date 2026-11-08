@@ -1,13 +1,14 @@
 /**
  * Backend for the "What Works for Mom" log. Paste this into a Google Sheet's
- * Extensions > Apps Script editor (see README.md), set PASSCODE, run setup() once,
- * then Deploy > New deployment > Web app.
+ * Extensions > Apps Script editor, then Deploy > New deployment > Web app (see README.md).
+ * Nothing needs editing: the tabs are created on first use, and the first code entered
+ * in the app becomes the family code (stored in Script Properties, not in this file).
  *
  * Everything the family writes lives in this Sheet, never in the public repo.
  */
 
-// Shared family code. Change this before deploying; the app refuses to work while it says CHANGE-ME.
-const PASSCODE = 'CHANGE-ME';
+const CODE_PROPERTY = 'PASSCODE';
+const MIN_CODE_LENGTH = 4;
 
 const LOG_SHEET = 'Log';
 const TIPS_SHEET = 'Tips';
@@ -24,7 +25,7 @@ const CHOICES = {
 const MAX_TEXT = 500;
 const MAX_ENTRIES_RETURNED = 200;
 
-/** Run once from the editor: creates the Log and Tips tabs. Safe to run again. */
+/** Creates the Log and Tips tabs if they are missing. Runs automatically; safe to run by hand. */
 function setup() {
   const ss = SpreadsheetApp.getActive();
   let log = ss.getSheetByName(LOG_SHEET);
@@ -56,8 +57,23 @@ function doGet() {
 }
 
 function handle(body) {
-  if (PASSCODE === 'CHANGE-ME') return { ok: false, error: 'passcode_not_set' };
-  if (String(body.code || '') !== PASSCODE) return { ok: false, error: 'bad_code' };
+  const code = String(body.code || '');
+  const props = PropertiesService.getScriptProperties();
+  let saved = props.getProperty(CODE_PROPERTY);
+  if (!saved) {
+    // First connection after deploying: this code becomes the family code.
+    if (code.length < MIN_CODE_LENGTH) return { ok: false, error: 'code_too_short' };
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+      saved = props.getProperty(CODE_PROPERTY);
+      if (!saved) { props.setProperty(CODE_PROPERTY, code); saved = code; }
+    } finally {
+      lock.releaseLock();
+    }
+  }
+  if (code !== saved) return { ok: false, error: 'bad_code' };
+  setup();
   if (body.action === 'list') return { ok: true, entries: listEntries(), tips: listTips() };
   if (body.action === 'add') return addEntry(body.entry || {});
   return { ok: false, error: 'unknown_action' };
@@ -120,9 +136,7 @@ function listTips() {
 }
 
 function logSheet() {
-  const sheet = SpreadsheetApp.getActive().getSheetByName(LOG_SHEET);
-  if (!sheet) throw new Error('Run setup() first');
-  return sheet;
+  return SpreadsheetApp.getActive().getSheetByName(LOG_SHEET);
 }
 
 // Trim, cap length, and stop text like "=SUM(...)" from being read as a spreadsheet formula.

@@ -6,7 +6,7 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
 const PORT = Number(process.argv[2] || 8765);
-const PASSCODE = "test";
+let PASSCODE = process.env.MOCK_FIRST_RUN ? "" : "test"; // MOCK_FIRST_RUN=1 mimics a fresh deploy
 const CHOICES = {
   music: ["worked", "didnt", "not_tried"], memory_box: ["worked", "didnt", "not_tried"], voice: ["worked", "didnt", "not_tried"],
   mood: ["calm", "okay", "restless", "upset"], meals: ["all", "some", "little", "none"], nap: ["yes", "no"],
@@ -20,7 +20,12 @@ const log = [];
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css" };
 
 function handle(body) {
-  if (String(body.code || "") !== PASSCODE) return { ok: false, error: "bad_code" };
+  const code = String(body.code || "");
+  if (!PASSCODE) {
+    if (code.length < 4) return { ok: false, error: "code_too_short" };
+    PASSCODE = code;
+  }
+  if (code !== PASSCODE) return { ok: false, error: "bad_code" };
   if (body.action === "list") return { ok: true, entries: log.slice(-200).reverse(), tips: TIPS };
   if (body.action !== "add") return { ok: false, error: "unknown_action" };
   const e = body.entry || {};
@@ -58,4 +63,4 @@ http.createServer((req, res) => {
   }
   res.writeHead(200, { "Content-Type": MIME[path.extname(file)] || "application/octet-stream" });
   fs.createReadStream(file).pipe(res);
-}).listen(PORT, "127.0.0.1", () => console.log(`mock backend + app on http://127.0.0.1:${PORT}  (code: ${PASSCODE})`));
+}).listen(PORT, "127.0.0.1", () => console.log(`mock backend + app on http://127.0.0.1:${PORT}  (code: ${PASSCODE || "first one entered"})`));
