@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#2f6f62">
+  <title>What Works for Mom</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <h1>What Works for Mom</h1>
+    <button id="who-chip" class="chip" hidden></button>
+  </header>
+
+  <main id="app">
+    <!-- Passcode -->
+    <section id="view-code" class="view" hidden>
+      <h2>Family code</h2>
+      <p class="muted">Ask Michael for the code. You only enter it once on this phone.</p>
+      <form id="code-form" class="stack">
+        <input id="code-input" type="password" inputmode="text" autocomplete="off" autocapitalize="off" placeholder="Code" required>
+        <button class="primary" type="submit">Continue</button>
+        <p id="code-error" class="error" hidden></p>
+      </form>
+    </section>
+
+    <!-- Who are you -->
+    <section id="view-who" class="view" hidden>
+      <h2>Who's using this phone?</h2>
+      <div id="who-buttons" class="stack"></div>
+      <form id="who-other" class="row">
+        <input id="who-other-input" type="text" maxlength="40" placeholder="Someone else? Type your name">
+        <button type="submit">Use</button>
+      </form>
+    </section>
+
+    <!-- Home -->
+    <section id="view-home" class="view" hidden>
+      <button id="add-btn" class="primary big">+ Add how today went</button>
+
+      <div id="pending" class="notice" hidden></div>
+
+      <details class="card tips" open>
+        <summary><h2>Hard moment? Try these first</h2></summary>
+        <ul id="tips"></ul>
+      </details>
+
+      <div class="card">
+        <div class="row between">
+          <h2>How she's been</h2>
+          <button id="refresh-btn" class="link">Refresh</button>
+        </div>
+        <p id="feed-status" class="muted"></p>
+        <ol id="feed"></ol>
+      </div>
+    </section>
+
+    <!-- Add entry -->
+    <section id="view-add" class="view" hidden>
+      <h2>How did it go?</h2>
+      <p class="muted">Tap what applies. Skip anything you don't know.</p>
+      <form id="entry-form" class="stack">
+        <fieldset data-field="music"><legend>Her songs</legend></fieldset>
+        <fieldset data-field="memory_box"><legend>Memory box</legend></fieldset>
+        <fieldset data-field="voice"><legend>Slow, warm voice</legend></fieldset>
+        <fieldset data-field="mood"><legend>Mood</legend></fieldset>
+        <fieldset data-field="meals"><legend>Ate</legend></fieldset>
+        <fieldset data-field="nap"><legend>Napped</legend></fieldset>
+        <label>Things to avoid <span class="muted">(heads up for the next person)</span>
+          <textarea name="avoid" maxlength="500" rows="2"></textarea>
+        </label>
+        <label>Anything else
+          <textarea name="notes" maxlength="500" rows="3"></textarea>
+        </label>
+        <p class="muted small">Keep it to what helps the next person. No medical charting needed.</p>
+        <div class="row">
+          <button type="button" id="cancel-btn">Cancel</button>
+          <button class="primary" type="submit">Save</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
